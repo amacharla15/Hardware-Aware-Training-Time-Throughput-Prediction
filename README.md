@@ -78,7 +78,6 @@ The result is a model that can answer questions like:
 
 ## Repository Structure
 
-*(Adjust names to match your actual files.)*
 
 ```text
 .
@@ -209,7 +208,7 @@ R² on test set
 Scatter plot: predicted vs actual time_per_epoch
 
 How to Run
-⚠️ Full experiments require access to an A100-like GPU (e.g., course cluster).
+⚠️ Full experiments require access to an A100-like GPU 
 A tiny CPU-only demo can be run by restricting configs and epochs.
 
 1. Install dependencies
@@ -276,8 +275,7 @@ Choose configs under a time budget (e.g., < 1.5 s/epoch)
 
 Compare expected throughput across multiple candidate architectures
 
-Results (Example)
-(Fill in with your actual numbers once experiments are done.)
+Results
 
 Grid size: ~18 CNN configurations
 

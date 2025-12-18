@@ -1,0 +1,19 @@
+# Python / env
+venv/
+__pycache__/
+*.pyc
+
+# Logs (can be large + noisy)
+logs/
+logs_grid2/
+logs_grid3/
+logs_repeats/
+logs_unseen/
+
+# Snapshots / archives
+snapshot_*/
+*.tar.gz
+
+# Misc
+.DS_Store
+*.swp

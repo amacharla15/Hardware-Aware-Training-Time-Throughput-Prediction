@@ -1,0 +1,5 @@
+rows: 153
+avg_time_sec LinearRegression  MAE=0.753095  RMSE=0.981936  R2=0.428761
+avg_time_sec ANN               MAE=0.520550  RMSE=0.694007  R2=0.714650
+images_per_sec LinearRegression  MAE=9921.845703  RMSE=11848.724488  R2=0.803055
+images_per_sec ANN               MAE=30054.833984  RMSE=36036.410032  R2=-0.821732

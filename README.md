@@ -1,17 +1,14 @@
-# Hardware-Aware Training Time + Throughput Prediction (CNNs on A100)
+# Hardware-Aware Training Time & Throughput Prediction (A100, CIFAR-10)
 
-Measures CNN training performance on CIFAR-10 on an NVIDIA A100 and trains regressors to predict:
-- avg time per epoch (seconds)
-- throughput (images/sec), derived from predicted time
+This project collects training-time/throughput measurements for many CNN configurations on an NVIDIA A100 GPU (CIFAR-10),
+then trains regressors (Linear + ANN) to predict performance from config features.
 
-## Key files
-- `run_one.py`: run one config + log to `runs.csv`
-- `make_runs_agg.py` -> `runs_agg.csv`: aggregates repeats (mean/std) + steps_per_epoch
-- `train_regressor*.py`: Linear + ANN regressors (analysis)
-- `train_time_ann_deploy.py`: deployable ANN time model (log-space)
-- `predict_perf_final.py`: final CLI predictor (time + derived throughput)
+Key idea: throughput is best predicted by predicting time and deriving throughput:
+images/sec ≈ 50000 / time_per_epoch.
 
-## Quick start
-```bash
-source venv/bin/activate
-python predict_perf_final.py --depth 2 --base_filters 16 --batch_size 2048 --params 280218
+## Files
+- runs.csv: raw run logs (one row per training job)
+- make_runs_agg.py -> runs_agg.csv: aggregates repeats + derives steps_per_epoch
+- train_time_ann_deploy.py: trains deployable ANN time model (log-target) -> results_v3/time_mean_ann_deploy.keras
+- predict_perf_final.py: loads deploy model and predicts time + derived throughput
+- make_plots_v2.py: plots in results_v2/

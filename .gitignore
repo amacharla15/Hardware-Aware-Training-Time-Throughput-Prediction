@@ -1,19 +1,16 @@
-# Python / env
+# venv
 venv/
+
+# python junk
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
 
-# Logs (can be large + noisy)
-logs/
-logs_grid2/
-logs_grid3/
-logs_repeats/
-logs_unseen/
-
-# Snapshots / archives
+# big archives / snapshots
 snapshot_*/
-*.tar.gz
+snapshot_*.tar.gz
 
-# Misc
+# editor junk
+.vscode/
 .DS_Store
-*.swp

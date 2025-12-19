@@ -1,0 +1,3 @@
+rows: 143
+DERIVED thr_mean from Linear(time)  MAE=6452.247070  RMSE=8194.381490  R2=0.871383
+DERIVED thr_mean from ANN(time)     MAE=2456.558838  RMSE=3758.803666  R2=0.972938

@@ -1,0 +1,15 @@
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1766108898.127404 2794342 gpu_device.cc:2020] Created device /job:localhost/replica:0/task:0/device:GPU:0 with 79191 MB memory:  -> device: 0, name: NVIDIA A100 80GB PCIe, pci bus id: 0000:03:00.0, compute capability: 8.0
+I0000 00:00:1766108900.522230 2794428 device_compiler.h:196] Compiled cluster using XLA!  This line is logged at most once for the lifetime of the process.
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1766108905.711176 2794617 gpu_device.cc:2020] Created device /job:localhost/replica:0/task:0/device:GPU:0 with 78766 MB memory:  -> device: 0, name: NVIDIA A100 80GB PCIe, pci bus id: 0000:03:00.0, compute capability: 8.0
+I0000 00:00:1766108908.084428 2794815 device_compiler.h:196] Compiled cluster using XLA!  This line is logged at most once for the lifetime of the process.
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1766108913.215030 2795447 gpu_device.cc:2020] Created device /job:localhost/replica:0/task:0/device:GPU:0 with 78672 MB memory:  -> device: 0, name: NVIDIA A100 80GB PCIe, pci bus id: 0000:03:00.0, compute capability: 8.0
+I0000 00:00:1766108915.579548 2797215 device_compiler.h:196] Compiled cluster using XLA!  This line is logged at most once for the lifetime of the process.
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1766108920.604123 2797581 gpu_device.cc:2020] Created device /job:localhost/replica:0/task:0/device:GPU:0 with 79191 MB memory:  -> device: 0, name: NVIDIA A100 80GB PCIe, pci bus id: 0000:03:00.0, compute capability: 8.0
+I0000 00:00:1766108922.987018 2797659 device_compiler.h:196] Compiled cluster using XLA!  This line is logged at most once for the lifetime of the process.
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1766108928.144026 2797775 gpu_device.cc:2020] Created device /job:localhost/replica:0/task:0/device:GPU:0 with 79191 MB memory:  -> device: 0, name: NVIDIA A100 80GB PCIe, pci bus id: 0000:03:00.0, compute capability: 8.0
+I0000 00:00:1766108930.535300 2797863 device_compiler.h:196] Compiled cluster using XLA!  This line is logged at most once for the lifetime of the process.

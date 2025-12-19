@@ -1,0 +1,37 @@
+2025-12-18 08:50:42.296597: I tensorflow/core/util/port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+2025-12-18 08:50:42.365290: I tensorflow/core/platform/cpu_feature_guard.cc:210] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 AVX512F AVX512_VNNI FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+2025-12-18 08:50:44.018638: I tensorflow/core/util/port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+/home/amacharla/csci581_a100_perf/venv/lib/python3.12/site-packages/keras/src/export/tf2onnx_lib.py:8: FutureWarning: In the future `np.object` will be defined as the corresponding NumPy scalar.
+  if not hasattr(np, "object"):
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1766047849.030745 2098200 gpu_device.cc:2020] Created device /job:localhost/replica:0/task:0/device:GPU:0 with 79191 MB memory:  -> device: 0, name: NVIDIA A100 80GB PCIe, pci bus id: 0000:03:00.0, compute capability: 8.0
+Epoch 1/3
+2025-12-18 08:50:56.675441: I external/local_xla/xla/service/service.cc:163] XLA service 0x777e8c002560 initialized for platform CUDA (this does not guarantee that XLA will be used). Devices:
+2025-12-18 08:50:56.675467: I external/local_xla/xla/service/service.cc:171]   StreamExecutor device (0): NVIDIA A100 80GB PCIe, Compute Capability 8.0
+2025-12-18 08:50:56.741137: I tensorflow/compiler/mlir/tensorflow/utils/dump_mlir_util.cc:269] disabling MLIR crash reproducer, set env var `MLIR_CRASH_REPRODUCER_DIRECTORY` to enable.
+2025-12-18 08:50:57.289768: I external/local_xla/xla/stream_executor/cuda/cuda_dnn.cc:473] Loaded cuDNN version 91700
+2025-12-18 08:50:57.378115: I external/local_xla/xla/service/gpu/autotuning/dot_search_space.cc:208] All configs were filtered out because none of them sufficiently match the hints. Maybe the hints set does not contain a good representative set of valid configs? Working around this by using the full hints set instead.
+2025-12-18 08:50:57.378211: I external/local_xla/xla/service/gpu/autotuning/dot_search_space.cc:208] All configs were filtered out because none of them sufficiently match the hints. Maybe the hints set does not contain a good representative set of valid configs? Working around this by using the full hints set instead.
+2025-12-18 08:50:57.378229: I external/local_xla/xla/service/gpu/autotuning/dot_search_space.cc:208] All configs were filtered out because none of them sufficiently match the hints. Maybe the hints set does not contain a good representative set of valid configs? Working around this by using the full hints set instead.
+2025-12-18 08:50:58.196662: I external/local_xla/xla/stream_executor/cuda/subprocess_compilation.cc:346] ptxas warning : Registers are spilled to local memory in function 'gemm_fusion_dot_830', 248 bytes spill stores, 248 bytes spill loads
+
+2025-12-18 08:50:58.278863: I external/local_xla/xla/stream_executor/cuda/subprocess_compilation.cc:346] ptxas warning : Registers are spilled to local memory in function 'gemm_fusion_dot_830', 72 bytes spill stores, 72 bytes spill loads
+
+2025-12-18 08:50:58.305915: I external/local_xla/xla/stream_executor/cuda/subprocess_compilation.cc:346] ptxas warning : Registers are spilled to local memory in function 'gemm_fusion_dot_830', 108 bytes spill stores, 108 bytes spill loads
+
+2025-12-18 08:50:58.590601: I external/local_xla/xla/stream_executor/cuda/subprocess_compilation.cc:346] ptxas warning : Registers are spilled to local memory in function 'gemm_fusion_dot_830', 228 bytes spill stores, 228 bytes spill loads
+
+2025-12-18 08:50:58.659049: I external/local_xla/xla/stream_executor/cuda/subprocess_compilation.cc:346] ptxas warning : Registers are spilled to local memory in function 'gemm_fusion_dot_1260', 428 bytes spill stores, 444 bytes spill loads
+
+2025-12-18 08:50:58.666572: I external/local_xla/xla/stream_executor/cuda/subprocess_compilation.cc:346] ptxas warning : Registers are spilled to local memory in function 'gemm_fusion_dot_830', 720 bytes spill stores, 720 bytes spill loads
+
+I0000 00:00:1766047863.884168 2098276 device_compiler.h:196] Compiled cluster using XLA!  This line is logged at most once for the lifetime of the process.
+1563/1563 - 21s - 13ms/step - accuracy: 0.0983 - loss: 2.3031
+Epoch 2/3
+1563/1563 - 6s - 4ms/step - accuracy: 0.0990 - loss: 2.3028
+Epoch 3/3
+1563/1563 - 6s - 4ms/step - accuracy: 0.0967 - loss: 2.3028
+/home/amacharla/csci581_a100_perf/run_one.py:83: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "timestamp_utc": datetime.utcnow().isoformat(timespec="seconds"),
+LOGGED: {'timestamp_utc': '2025-12-18T08:51:28', 'tf_version': '2.20.0', 'depth': 5, 'base_filters': 32, 'batch_size': 32, 'epochs': 3, 'params': 4779178, 'epoch_times_json': '[20.94799562986009, 5.5922092059627175, 5.588781718863174]', 'avg_time_sec': 5.590495462412946, 'images_per_sec': 8943.751110464047, 'test_acc': 0.10000000149011612}

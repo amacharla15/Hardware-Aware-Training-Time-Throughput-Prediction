@@ -1,0 +1,22 @@
+2025-12-18 09:47:28.760590: I tensorflow/core/util/port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+2025-12-18 09:47:28.829233: I tensorflow/core/platform/cpu_feature_guard.cc:210] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 AVX512F AVX512_VNNI FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+2025-12-18 09:47:30.450086: I tensorflow/core/util/port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+/home/amacharla/csci581_a100_perf/venv/lib/python3.12/site-packages/keras/src/export/tf2onnx_lib.py:8: FutureWarning: In the future `np.object` will be defined as the corresponding NumPy scalar.
+  if not hasattr(np, "object"):
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1766051255.416947 2150484 gpu_device.cc:2020] Created device /job:localhost/replica:0/task:0/device:GPU:0 with 79191 MB memory:  -> device: 0, name: NVIDIA A100 80GB PCIe, pci bus id: 0000:03:00.0, compute capability: 8.0
+Epoch 1/3
+2025-12-18 09:47:43.063202: I external/local_xla/xla/service/service.cc:163] XLA service 0x703fb4012ed0 initialized for platform CUDA (this does not guarantee that XLA will be used). Devices:
+2025-12-18 09:47:43.063231: I external/local_xla/xla/service/service.cc:171]   StreamExecutor device (0): NVIDIA A100 80GB PCIe, Compute Capability 8.0
+2025-12-18 09:47:43.127814: I tensorflow/compiler/mlir/tensorflow/utils/dump_mlir_util.cc:269] disabling MLIR crash reproducer, set env var `MLIR_CRASH_REPRODUCER_DIRECTORY` to enable.
+2025-12-18 09:47:43.672745: I external/local_xla/xla/stream_executor/cuda/cuda_dnn.cc:473] Loaded cuDNN version 91700
+I0000 00:00:1766051275.057075 2150586 device_compiler.h:196] Compiled cluster using XLA!  This line is logged at most once for the lifetime of the process.
+33/33 - 25s - 752ms/step - accuracy: 0.1149 - loss: 2.3038
+Epoch 2/3
+33/33 - 1s - 27ms/step - accuracy: 0.1582 - loss: 2.1716
+Epoch 3/3
+33/33 - 1s - 27ms/step - accuracy: 0.2893 - loss: 1.8307
+/home/amacharla/csci581_a100_perf/run_one.py:83: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "timestamp_utc": datetime.utcnow().isoformat(timespec="seconds"),
+LOGGED: {'timestamp_utc': '2025-12-18T09:48:10', 'tf_version': '2.20.0', 'depth': 5, 'base_filters': 32, 'batch_size': 1536, 'epochs': 3, 'params': 4779178, 'epoch_times_json': '[24.807005046866834, 0.8973593630362302, 0.8900432700756937]', 'avg_time_sec': 0.893701316555962, 'images_per_sec': 55947.10343796287, 'test_acc': 0.33410000801086426}

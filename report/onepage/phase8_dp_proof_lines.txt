@@ -1,0 +1,35 @@
+63:def knapsack_01(items, budget_sec):
+64:    # 0/1 knapsack with integer-second budget
+65:    B = int(budget_sec)
+71:    dp[0] = 0.0
+84:            if dp[t - c] > -1e29:
+85:                cand = dp[t - c] + v
+86:                if cand > dp[t]:
+87:                    dp[t] = cand
+95:    best_v = dp[0]
+98:        if dp[t] > best_v:
+99:            best_v = dp[t]
+121:    ap.add_argument("--budget_sec", type=int, default=3600)
+122:    ap.add_argument("--epochs", type=int, default=50)
+124:    ap.add_argument("--time_source", choices=["measured", "pred"], default="measured")
+127:    ap.add_argument("--value", choices=["acc", "thr"], default="acc")
+128:    ap.add_argument("--min_acc", type=float, default=0.0)
+139:    # First pass: parse and filter basic validity + min_acc
+162:        if acc < args.min_acc:
+203:        cost = int(round(time_per_epoch * float(args.epochs)))
+206:        if cost > args.budget_sec:
+220:            "epochs": args.epochs,
+230:    print("DP TIME-BUDGET PLANNER (0/1 Knapsack)")
+231:    print(f"Budget: {args.budget_sec} sec  (~{args.budget_sec/60.0:.2f} min)")
+232:    print(f"Epochs per candidate run: {args.epochs}")
+235:    print(f"min_acc filter: {args.min_acc}")
+239:        print("No candidates fit the budget (or min_acc removed all).")
+242:    chosen, used_t, best_v = knapsack_01(items, args.budget_sec)
+256:    print(f"Budget utilization: {100.0*float(total_cost)/float(args.budget_sec):.2f}%")
+264:    print("depth  filters  batch   params      acc     thr(img/s)  time/ep(s)  epochs  cost(s)")
+268:            f"{it['acc']:7.4f}  {it['thr']:10.1f}  {it['time_per_epoch']:10.4f}  {it['epochs']:5d}  {it['cost']:6d}"
+273:    print("- 0/1 knapsack DP (each candidate config can be chosen at most once).")
+274:    print("- cost = time_per_epoch * epochs (rounded to seconds).")
+276:    print("- state: dp[t] = best total value achievable within time budget t.")
+277:    print("- transition: dp[t] = max(dp[t], dp[t-cost_i] + value_i).")
+278:    print(f"- complexity: O(N*B) with N={len(items)} and B={args.budget_sec} seconds.")

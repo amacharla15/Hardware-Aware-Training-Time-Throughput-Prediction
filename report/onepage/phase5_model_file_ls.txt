@@ -1,0 +1,1 @@
+-rwxrwxrwx 1 amacharla amacharla 83K Dec 20 02:14 results_v3/time_mean_ann_deploy.keras

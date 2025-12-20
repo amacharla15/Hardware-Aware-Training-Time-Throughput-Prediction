@@ -1,0 +1,5 @@
+run_one.py:78:    images_per_sec = float(x_train.shape[0]) / float(avg_time)
+run_one.py:92:        "images_per_sec": float(images_per_sec),
+starter_cnn_time.py:49:    steps_per_epoch = (x_train.shape[0] + batch_size - 1) // batch_size
+starter_cnn_time.py:63:    images_per_sec = x_train.shape[0] / avg
+starter_cnn_time.py:65:    print("images_per_sec:", images_per_sec)

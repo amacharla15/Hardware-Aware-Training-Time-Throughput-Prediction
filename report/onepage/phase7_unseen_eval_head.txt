@@ -1,0 +1,35 @@
+Found unseen configs: 5
+
+CONFIG d=2 f=16 bs=160 params=280218  (n=1)
+MEASURED  time=1.045237  thr=47836.0
+PREDICT   time=0.976810  thr=51187.0
+ABS ERR   time=0.068427  thr=3351.0
+REL ERR   time=6.55%  thr=7.01%
+
+CONFIG d=2 f=64 bs=1280 params=1310154  (n=1)
+MEASURED  time=1.067295  thr=46847.4
+PREDICT   time=1.050579  thr=47592.8
+ABS ERR   time=0.016716  thr=745.4
+REL ERR   time=1.57%  thr=1.59%
+
+CONFIG d=3 f=32 bs=320 params=550570  (n=1)
+MEASURED  time=1.032943  thr=48405.4
+PREDICT   time=0.970985  thr=51494.1
+ABS ERR   time=0.061958  thr=3088.7
+REL ERR   time=6.00%  thr=6.38%
+
+CONFIG d=4 f=64 bs=640 params=4948938  (n=1)
+MEASURED  time=1.597230  thr=31304.2
+PREDICT   time=1.577690  thr=31691.9
+ABS ERR   time=0.019540  thr=387.7
+REL ERR   time=1.22%  thr=1.24%
+
+CONFIG d=5 f=128 bs=48 params=75624970  (n=1)
+MEASURED  time=13.501595  thr=3703.3
+PREDICT   time=13.148818  thr=3802.6
+ABS ERR   time=0.352777  thr=99.4
+REL ERR   time=2.61%  thr=2.68%
+
+SUMMARY (over shown configs)
+Time MAE: 0.10388366212048199
+Thr  MAE: 1534.4335513288618

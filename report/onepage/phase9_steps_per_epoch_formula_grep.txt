@@ -1,0 +1,5 @@
+10:        k = (int(r["depth"]), int(r["base_filters"]), int(r["batch_size"]), int(r["params"]))
+34:        "batch_size": bs,
+37:        "steps_per_epoch": steps,
+46:rows_out.sort(key=lambda r: (r["depth"], r["base_filters"], r["batch_size"]))
+67:        print(r["depth"], r["base_filters"], r["batch_size"],

@@ -1,0 +1,2 @@
+steps_per_epoch for bs=512: 98
+17:    steps = (TRAIN_N + bs - 1) // bs

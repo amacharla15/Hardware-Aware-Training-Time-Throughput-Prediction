@@ -1,0 +1,16 @@
+6:TRAIN_N = 50000
+10:    ap.add_argument("--depth", type=int, required=True)
+11:    ap.add_argument("--base_filters", type=int, required=True)
+12:    ap.add_argument("--batch_size", type=int, required=True)
+13:    ap.add_argument("--params", type=int, required=True)
+16:    bs = int(args.batch_size)
+17:    steps = (TRAIN_N + bs - 1) // bs
+21:        float(args.depth),
+22:        float(args.base_filters),
+23:        math.log2(float(args.batch_size)),
+24:        math.log10(float(args.params)),
+25:        math.log10(float(steps)),
+29:    model = tf.keras.models.load_model("results_v3/time_mean_ann_deploy.keras")
+32:    pred_time = math.exp(pred_log_time)
+33:    pred_thr = float(TRAIN_N) / pred_time
+36:    print("predicted_images_per_sec_derived:", pred_thr)

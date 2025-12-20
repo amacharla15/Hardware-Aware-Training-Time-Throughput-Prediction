@@ -1,0 +1,5 @@
+run_one.py:52:    train_ds = train_ds.cache().shuffle(50000).batch(args.batch_size).prefetch(tf.data.AUTOTUNE)
+starter_cnn_time.py:24:    train_ds = train_ds.shuffle(50000).batch(batch_size).prefetch(tf.data.AUTOTUNE)
+train_time_derive_thr.py:15:TRAIN_N = 50000
+predict_perf_final.py:6:TRAIN_N = 50000
+make_runs_agg.py:4:TRAIN_N = 50000

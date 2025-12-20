@@ -1,0 +1,3 @@
+train_time_derive_thr.py:112:    pred_thr_from_lr = TRAIN_N / pred_time_lr
+train_time_derive_thr.py:142:    pred_thr_from_ann = TRAIN_N / pred_time_ann
+predict_perf_final.py:36:    print("predicted_images_per_sec_derived:", pred_thr)

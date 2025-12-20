@@ -1,0 +1,1 @@
+runs=159 mean_time_sec_per_epoch=2.45021 mean_images_per_sec=2.39942

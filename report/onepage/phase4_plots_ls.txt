@@ -1,0 +1,7 @@
+-rwxrwxrwx 1 amacharla amacharla 74K Dec 20 02:14 results_v2/acc_vs_time.png
+-rwxrwxrwx 1 amacharla amacharla 81K Dec 20 02:14 results_v2/repeats_time_errorbars.png
+-rwxrwxrwx 1 amacharla amacharla 64K Dec 20 02:14 results_v2/throughput_mean_ann_scatter.png
+-rwxrwxrwx 1 amacharla amacharla 65K Dec 20 02:14 results_v2/throughput_mean_linear_scatter.png
+-rwxrwxrwx 1 amacharla amacharla 79K Dec 20 02:14 results_v2/throughput_vs_batch.png
+-rwxrwxrwx 1 amacharla amacharla 58K Dec 20 02:14 results_v2/time_mean_ann_scatter.png
+-rwxrwxrwx 1 amacharla amacharla 64K Dec 20 02:14 results_v2/time_mean_linear_scatter.png

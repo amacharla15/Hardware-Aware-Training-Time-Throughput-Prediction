@@ -1,0 +1,182 @@
+===== results_v3/dp_plan_budget_3600s.txt =====
+DP TIME-BUDGET PLANNER (0/1 Knapsack)
+Budget: 3600 sec  (~60.00 min)
+Epochs per candidate run: 3
+Candidates available: 0
+No candidates fit the budget (or min_acc filter removed all).
+
+===== results_v3/dp_plan_budget_3600s_epochs50_acc.txt =====
+DP TIME-BUDGET PLANNER (0/1 Knapsack)
+Budget: 3600 sec  (~60.00 min)
+Epochs per candidate run: 50
+Value optimized: acc
+Time source: measured
+min_acc filter: 0.6
+Candidates available: 67
+
+RESULT
+Chosen configs: 1
+Total time used: 46 sec  (~0.77 min)
+Budget utilization: 1.28%
+Total value: 0.606025
+
+Chosen list:
+depth  filters  batch   params      acc     thr(img/s)  time/ep(s)  epochs  cost(s)
+    3       32    512     550570   0.6060     54595.5      0.9159     50      46
+
+DP details (for report):
+- 0/1 knapsack DP (each candidate config can be chosen at most once).
+- cost = time_per_epoch * epochs (rounded to seconds).
+- value = acc_mean (or thr_mean) from runs_agg.csv.
+- state: dp[t] = best total value achievable within time budget t.
+- transition: dp[t] = max(dp[t], dp[t-cost_i] + value_i).
+- complexity: O(N*B) with N=67 and B=3600 seconds.
+
+===== results_v3/dp_plan_budget_3600s_minacc60.txt =====
+DP TIME-BUDGET PLANNER (0/1 Knapsack)
+Budget: 3600 sec  (~60.00 min)
+Epochs per candidate run: 3
+Value optimized: acc
+Time source: measured
+min_acc filter: 0.6
+Candidates available: 67
+
+RESULT
+Chosen configs: 2
+Total time used: 5 sec  (~0.08 min)
+Budget utilization: 0.14%
+Total value: 1.215925
+
+Chosen list:
+depth  filters  batch   params      acc     thr(img/s)  time/ep(s)  epochs  cost(s)
+    2       16    256     280218   0.6099     65953.6      0.7581      3       2
+    3       32    512     550570   0.6060     54595.5      0.9159      3       3
+
+DP details (for report):
+- 0/1 knapsack DP (each candidate config can be chosen at most once).
+- cost = time_per_epoch * epochs (rounded to seconds).
+- value = acc_mean (or thr_mean) from runs_agg.csv.
+- state: dp[t] = best total value achievable within time budget t.
+- transition: dp[t] = max(dp[t], dp[t-cost_i] + value_i).
+- complexity: O(N*B) with N=67 and B=3600 seconds.
+
+===== results_v3/dp_plan_budget_3600s_predtime_minacc60.txt =====
+DP TIME-BUDGET PLANNER (0/1 Knapsack)
+Budget: 3600 sec  (~60.00 min)
+Epochs per candidate run: 3
+Value optimized: acc
+Time source: pred
+min_acc filter: 0.6
+Candidates available: 0
+No candidates fit the budget (or min_acc removed all).
+
+===== results_v3/dp_plan_budget_60s_epochs3_acc.txt =====
+DP TIME-BUDGET PLANNER (0/1 Knapsack)
+Budget: 60 sec  (~1.00 min)
+Epochs per candidate run: 3
+Value optimized: acc
+Time source: measured
+min_acc filter: 0.6
+Candidates available: 67
+
+RESULT
+Chosen configs: 2
+Total time used: 5 sec  (~0.08 min)
+Budget utilization: 8.33%
+Total value: 1.215925
+
+Chosen list:
+depth  filters  batch   params      acc     thr(img/s)  time/ep(s)  epochs  cost(s)
+    2       16    256     280218   0.6099     65953.6      0.7581      3       2
+    3       32    512     550570   0.6060     54595.5      0.9159      3       3
+
+DP details (for report):
+- 0/1 knapsack DP (each candidate config can be chosen at most once).
+- cost = time_per_epoch * epochs (rounded to seconds).
+- value = acc_mean (or thr_mean) from runs_agg.csv.
+- state: dp[t] = best total value achievable within time budget t.
+- transition: dp[t] = max(dp[t], dp[t-cost_i] + value_i).
+- complexity: O(N*B) with N=67 and B=60 seconds.
+
+===== results_v3/dp_plan_measured_3600s_epochs50_acc.txt =====
+DP TIME-BUDGET PLANNER (0/1 Knapsack)
+Budget: 3600 sec  (~60.00 min)
+Epochs per candidate run: 50
+Value optimized: acc
+Time source: measured
+min_acc filter: 0.6
+Candidates available: 67
+
+RESULT
+Chosen configs: 1
+Total time used: 80 sec  (~1.33 min)
+Budget utilization: 2.22%
+Total value: 0.610800
+
+Chosen list:
+depth  filters  batch   params      acc     thr(img/s)  time/ep(s)  epochs  cost(s)
+    5       32    192    4779178   0.6108     31271.5      1.5989     50      80
+
+DP details (for report):
+- 0/1 knapsack DP (each candidate config can be chosen at most once).
+- cost = time_per_epoch * epochs (rounded to seconds).
+- value = acc_mean or thr_mean from runs_agg.csv.
+- state: dp[t] = best total value achievable within time budget t.
+- transition: dp[t] = max(dp[t], dp[t-cost_i] + value_i).
+- complexity: O(N*B) with N=67 and B=3600 seconds.
+
+===== results_v3/dp_plan_pred_3600s_epochs50_acc.txt =====
+DP TIME-BUDGET PLANNER (0/1 Knapsack)
+Budget: 3600 sec  (~60.00 min)
+Epochs per candidate run: 50
+Value optimized: acc
+Time source: pred
+min_acc filter: 0.6
+Candidates available: 67
+
+RESULT
+Chosen configs: 2
+Total time used: 168 sec  (~2.80 min)
+Budget utilization: 4.67%
+Total value: 1.262600
+
+Chosen list:
+depth  filters  batch   params      acc     thr(img/s)  time/ep(s)  epochs  cost(s)
+    4       64    384    4948938   0.6518     28149.7      1.5973     50      80
+    5       32    192    4779178   0.6108     31271.5      1.7551     50      88
+
+DP details (for report):
+- 0/1 knapsack DP (each candidate config can be chosen at most once).
+- cost = time_per_epoch * epochs (rounded to seconds).
+- value = acc_mean or thr_mean from runs_agg.csv.
+- state: dp[t] = best total value achievable within time budget t.
+- transition: dp[t] = max(dp[t], dp[t-cost_i] + value_i).
+- complexity: O(N*B) with N=67 and B=3600 seconds.
+
+===== results_v3/dp_plan_pred_debug_bigbudget.txt =====
+DP TIME-BUDGET PLANNER (0/1 Knapsack)
+Budget: 360000 sec  (~6000.00 min)
+Epochs per candidate run: 3
+Value optimized: acc
+Time source: pred
+min_acc filter: 0.6
+Candidates available: 13
+
+RESULT
+Chosen configs: 1
+Total time used: 356558 sec  (~5942.63 min)
+Budget utilization: 99.04%
+Total value: 0.706900
+
+Chosen list:
+depth  filters  batch   params      acc     thr(img/s)  time/ep(s)  epochs  cost(s)
+    2       16     32     280218   0.7069     14285.9  118852.5625      3  356558
+
+DP details (for report):
+- 0/1 knapsack DP (each candidate config can be chosen at most once).
+- cost = time_per_epoch * epochs (rounded to seconds).
+- value = acc_mean (or thr_mean) from runs_agg.csv.
+- state: dp[t] = best total value achievable within time budget t.
+- transition: dp[t] = max(dp[t], dp[t-cost_i] + value_i).
+- complexity: O(N*B) with N=13 and B=360000 seconds.
+

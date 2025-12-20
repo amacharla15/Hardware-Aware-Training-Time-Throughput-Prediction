@@ -1,0 +1,29 @@
+15:TRAIN_N = 50000
+39:            math.log2(batch_size),
+40:            math.log10(params),
+41:            math.log2(steps_per_epoch),
+46:def build_y_time_log(rows):
+49:        t = float(r["avg_time_mean"])
+52:        y.append(math.log(t))
+56:def build_y_thr(rows):
+59:        y.append(float(r["thr_mean"]))
+91:    y_time_log = build_y_time_log(rows)
+92:    y_thr = build_y_thr(rows)
+94:    X_train, X_temp, y_train, y_temp, thr_train, thr_temp = train_test_split(
+95:        X, y_time_log, y_thr, test_size=0.30, random_state=42
+97:    X_val, X_test, y_val, y_test, thr_val, thr_test = train_test_split(
+98:        X_temp, y_temp, thr_temp, test_size=0.50, random_state=42
+106:    # -------- Linear time model (on log time) --------
+109:    pred_time_log_lr = lr.predict(X_test_s)
+110:    pred_time_lr = np.exp(pred_time_log_lr)
+112:    pred_thr_from_lr = TRAIN_N / pred_time_lr
+113:    mae, rmse, r2 = eval_metrics(thr_test, pred_thr_from_lr)
+114:    print(f"DERIVED thr_mean from Linear(time)  MAE={mae:.6f}  RMSE={rmse:.6f}  R2={r2:.6f}")
+115:    save_scatter(thr_test, pred_thr_from_lr, "thr_mean derived from Linear(time)", "results_v3/thr_derived_from_time_linear.png")
+117:    # -------- ANN time model (on log time) --------
+139:    pred_time_log_ann = model.predict(X_test_s, verbose=0).reshape(-1)
+140:    pred_time_ann = np.exp(pred_time_log_ann)
+142:    pred_thr_from_ann = TRAIN_N / pred_time_ann
+143:    mae, rmse, r2 = eval_metrics(thr_test, pred_thr_from_ann)
+144:    print(f"DERIVED thr_mean from ANN(time)     MAE={mae:.6f}  RMSE={rmse:.6f}  R2={r2:.6f}")
+145:    save_scatter(thr_test, pred_thr_from_ann, "thr_mean derived from ANN(time)", "results_v3/thr_derived_from_time_ann.png")

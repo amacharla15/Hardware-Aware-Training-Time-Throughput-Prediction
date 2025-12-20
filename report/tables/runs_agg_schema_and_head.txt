@@ -1,0 +1,8 @@
+runs_agg rows: 143
+runs_agg cols: ['depth', 'base_filters', 'batch_size', 'params', 'n', 'steps_per_epoch', 'avg_time_mean', 'avg_time_std', 'thr_mean', 'thr_std', 'acc_mean', 'acc_std']
+ depth  base_filters  batch_size  params  n  steps_per_epoch  avg_time_mean  avg_time_std     thr_mean  thr_std  acc_mean  acc_std
+     2            16          32  280218  1             1563       3.499945           0.0 14285.938801      0.0    0.7069      0.0
+     2            16          64  280218  1              782       1.890478           0.0 26448.338832      0.0    0.6994      0.0
+     2            16          96  280218  1              521       1.370722           0.0 36477.136331      0.0    0.6810      0.0
+     2            16         128  280218  1              391       1.133183           0.0 44123.486969      0.0    0.6570      0.0
+     2            16         160  280218  1              313       1.045237           0.0 47836.035840      0.0    0.6479      0.0

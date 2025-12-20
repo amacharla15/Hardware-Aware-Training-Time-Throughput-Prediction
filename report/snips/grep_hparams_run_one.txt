@@ -1,0 +1,17 @@
+1:import argparse
+17:def make_model(depth, base_filters):
+21:    filters = base_filters
+23:    while i < depth:
+36:    ap = argparse.ArgumentParser()
+37:    ap.add_argument("--depth", type=int, required=True)
+38:    ap.add_argument("--base_filters", type=int, required=True)
+39:    ap.add_argument("--batch_size", type=int, required=True)
+40:    ap.add_argument("--epochs", type=int, default=3)
+52:    train_ds = train_ds.cache().shuffle(50000).batch(args.batch_size).prefetch(tf.data.AUTOTUNE)
+55:    test_ds = test_ds.cache().batch(args.batch_size).prefetch(tf.data.AUTOTUNE)
+57:    model = make_model(args.depth, args.base_filters)
+65:    history = model.fit(train_ds, epochs=args.epochs, callbacks=[timer], verbose=2)
+85:        "depth": args.depth,
+86:        "base_filters": args.base_filters,
+87:        "batch_size": args.batch_size,
+88:        "epochs": args.epochs,

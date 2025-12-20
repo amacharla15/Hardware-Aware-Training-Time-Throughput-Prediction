@@ -1,0 +1,5 @@
+4:rows = list(csv.DictReader(open("runs_agg.csv", newline="")))
+27:plt.savefig("results_v2/acc_vs_time.png", dpi=200)
+38:plt.savefig("results_v2/throughput_vs_batch.png", dpi=200)
+57:    plt.errorbar(range(len(rep)), y, yerr=yerr, fmt="o")
+62:    plt.savefig("results_v2/repeats_time_errorbars.png", dpi=200)

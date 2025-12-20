@@ -1,0 +1,16 @@
+# venv
+venv/
+
+# python junk
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# big archives / snapshots
+snapshot_*/
+snapshot_*.tar.gz
+
+# editor junk
+.vscode/
+.DS_Store

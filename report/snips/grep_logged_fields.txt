@@ -1,0 +1,8 @@
+78:    images_per_sec = float(x_train.shape[0]) / float(avg_time)
+80:    test_loss, test_acc = model.evaluate(test_ds, verbose=0)
+89:        "params": int(model.count_params()),
+90:        "epoch_times_json": json.dumps(epoch_times),
+91:        "avg_time_sec": float(avg_time),
+92:        "images_per_sec": float(images_per_sec),
+93:        "test_acc": float(test_acc),
+103:    print("LOGGED:", row)

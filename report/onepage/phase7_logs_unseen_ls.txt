@@ -1,0 +1,8 @@
+total 40K
+drwxrwxrwx 1 amacharla amacharla 4.0K Dec 20 02:14 .
+drwxrwxrwx 1 amacharla amacharla 4.0K Dec 20 04:52 ..
+-rwxrwxrwx 1 amacharla amacharla 7.2K Dec 20 02:14 d2_f16_bs160.txt
+-rwxrwxrwx 1 amacharla amacharla 4.8K Dec 20 02:14 d2_f64_bs1280.txt
+-rwxrwxrwx 1 amacharla amacharla 4.4K Dec 20 02:14 d3_f32_bs320.txt
+-rwxrwxrwx 1 amacharla amacharla 4.4K Dec 20 02:14 d4_f64_bs640.txt
+-rwxrwxrwx 1 amacharla amacharla 4.8K Dec 20 02:14 d5_f128_bs48.txt

@@ -1,0 +1,4 @@
+-rwxrwxrwx 1 amacharla amacharla 176 Dec 20 02:14 results_v3/derived_thr_report.txt
+-rwxrwxrwx 1 amacharla amacharla 176 Dec 20 02:14 results_v3/derived_thr_report_latest.txt
+-rwxrwxrwx 1 amacharla amacharla 55K Dec 20 02:14 results_v3/thr_derived_from_time_ann.png
+-rwxrwxrwx 1 amacharla amacharla 69K Dec 20 02:14 results_v3/thr_derived_from_time_linear.png

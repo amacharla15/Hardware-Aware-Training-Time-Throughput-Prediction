@@ -1,0 +1,5 @@
+rows: 138
+avg_time_mean LinearRegression  MAE=1.168704  RMSE=2.603671  R2=0.567914
+avg_time_mean ANN               MAE=1.137615  RMSE=2.818420  R2=0.493698
+thr_mean LinearRegression  MAE=7808.288086  RMSE=10612.463616  R2=0.609473
+thr_mean ANN               MAE=21867.462891  RMSE=25779.350496  R2=-1.304423

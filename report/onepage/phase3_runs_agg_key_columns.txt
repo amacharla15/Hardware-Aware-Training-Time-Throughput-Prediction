@@ -1,0 +1,11 @@
+1:depth
+2:base_filters
+3:batch_size
+4:params
+6:steps_per_epoch
+7:avg_time_mean
+8:avg_time_std
+9:thr_mean
+10:thr_std
+11:acc_mean
+12:acc_std

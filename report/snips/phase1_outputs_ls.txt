@@ -1,0 +1,16 @@
+total 36K
+drwxrwxrwx 1 amacharla amacharla 4.0K Dec 20 05:03 .
+drwxrwxrwx 1 amacharla amacharla 4.0K Dec 20 04:50 ..
+-rwxrwxrwx 1 amacharla amacharla  199 Dec 20 05:03 grep_cifar.txt
+-rwxrwxrwx 1 amacharla amacharla  797 Dec 20 04:38 grep_dataset_constants.txt
+-rwxrwxrwx 1 amacharla amacharla  876 Dec 20 05:03 grep_hparams_run_one.txt
+-rwxrwxrwx 1 amacharla amacharla  400 Dec 20 05:03 grep_logged_fields.txt
+-rwxrwxrwx 1 amacharla amacharla  370 Dec 20 05:03 grep_throughput_logic.txt
+-rwxrwxrwx 1 amacharla amacharla 1.4K Dec 20 05:03 grep_timing_logic.txt
+-rwxrwxrwx 1 amacharla amacharla 2.9K Dec 20 02:14 ls_root.txt
+-rwxrwxrwx 1 amacharla amacharla    0 Dec 20 05:03 phase1_outputs_ls.txt
+-rwxrwxrwx 1 amacharla amacharla  917 Dec 20 04:39 phase1_snips_ls.txt
+-rwxrwxrwx 1 amacharla amacharla 3.6K Dec 20 05:02 run_one_top.txt
+-rwxrwxrwx 1 amacharla amacharla   59 Dec 20 04:50 runs_csv_ls.txt
+-rwxrwxrwx 1 amacharla amacharla 2.3K Dec 20 05:02 starter_cnn_time_top.txt
+-rwxrwxrwx 1 amacharla amacharla 7.0K Dec 20 05:03 starter_run_output_head.txt

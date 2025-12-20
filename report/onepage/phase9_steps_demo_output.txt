@@ -1,0 +1,1 @@
+steps_per_epoch for bs=512: 98

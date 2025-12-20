@@ -1,0 +1,8 @@
+-rwxrwxrwx 1 amacharla amacharla 183 Dec 20 02:14 results_v3/dp_plan_budget_3600s.txt
+-rwxrwxrwx 1 amacharla amacharla 855 Dec 20 02:14 results_v3/dp_plan_budget_3600s_epochs50_acc.txt
+-rwxrwxrwx 1 amacharla amacharla 934 Dec 20 02:14 results_v3/dp_plan_budget_3600s_minacc60.txt
+-rwxrwxrwx 1 amacharla amacharla 235 Dec 20 02:14 results_v3/dp_plan_budget_3600s_predtime_minacc60.txt
+-rwxrwxrwx 1 amacharla amacharla 929 Dec 20 02:14 results_v3/dp_plan_budget_60s_epochs3_acc.txt
+-rwxrwxrwx 1 amacharla amacharla 853 Dec 20 02:14 results_v3/dp_plan_measured_3600s_epochs50_acc.txt
+-rwxrwxrwx 1 amacharla amacharla 931 Dec 20 02:14 results_v3/dp_plan_pred_3600s_epochs50_acc.txt
+-rwxrwxrwx 1 amacharla amacharla 865 Dec 20 02:14 results_v3/dp_plan_pred_debug_bigbudget.txt

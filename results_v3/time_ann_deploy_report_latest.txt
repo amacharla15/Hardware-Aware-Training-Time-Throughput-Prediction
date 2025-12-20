@@ -1,0 +1,3 @@
+rows: 143
+time_mean_ANN_DEPLOY  MAE=0.101393  RMSE=0.161408  R2=0.993827
+saved results_v3/time_mean_ann_deploy.keras

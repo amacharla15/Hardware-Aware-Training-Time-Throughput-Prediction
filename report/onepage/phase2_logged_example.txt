@@ -1,0 +1,1 @@
+39:LOGGED: {'timestamp_utc': '2025-12-18T11:29:12', 'tf_version': '2.20.0', 'depth': 2, 'base_filters': 16, 'batch_size': 160, 'epochs': 3, 'params': 280218, 'epoch_times_json': '[11.278774441918358, 1.04825847200118, 1.0422157540451735]', 'avg_time_sec': 1.0452371130231768, 'images_per_sec': 47836.03584011977, 'test_acc': 0.6478999853134155}

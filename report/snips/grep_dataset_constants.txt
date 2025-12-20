@@ -1,0 +1,10 @@
+run_one.py:39:    ap.add_argument("--batch_size", type=int, required=True)
+run_one.py:52:    train_ds = train_ds.cache().shuffle(50000).batch(args.batch_size).prefetch(tf.data.AUTOTUNE)
+run_one.py:55:    test_ds = test_ds.cache().batch(args.batch_size).prefetch(tf.data.AUTOTUNE)
+run_one.py:87:        "batch_size": args.batch_size,
+starter_cnn_time.py:20:    batch_size = 128
+starter_cnn_time.py:24:    train_ds = train_ds.shuffle(50000).batch(batch_size).prefetch(tf.data.AUTOTUNE)
+starter_cnn_time.py:27:    val_ds = val_ds.batch(batch_size).prefetch(tf.data.AUTOTUNE)
+starter_cnn_time.py:48:    print("batch_size:", batch_size)
+starter_cnn_time.py:49:    steps_per_epoch = (x_train.shape[0] + batch_size - 1) // batch_size
+starter_cnn_time.py:50:    print("steps_per_epoch:", steps_per_epoch)

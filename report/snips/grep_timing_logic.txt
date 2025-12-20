@@ -1,0 +1,22 @@
+run_one.py:9:class EpochTimer(tf.keras.callbacks.Callback):
+run_one.py:12:    def on_epoch_begin(self, epoch, logs=None):
+run_one.py:13:        self.t0 = time.perf_counter()
+run_one.py:14:    def on_epoch_end(self, epoch, logs=None):
+run_one.py:15:        self.times.append(time.perf_counter() - self.t0)
+run_one.py:67:    epoch_times = timer.times
+run_one.py:68:    if len(epoch_times) >= 2:
+run_one.py:69:        avg_time = 0.0
+run_one.py:71:        while i < len(epoch_times):
+run_one.py:72:            avg_time += epoch_times[i]
+run_one.py:74:        avg_time = avg_time / (len(epoch_times) - 1)
+run_one.py:76:        avg_time = epoch_times[0]
+run_one.py:78:    images_per_sec = float(x_train.shape[0]) / float(avg_time)
+run_one.py:90:        "epoch_times_json": json.dumps(epoch_times),
+run_one.py:91:        "avg_time_sec": float(avg_time),
+starter_cnn_time.py:4:class EpochTimer(tf.keras.callbacks.Callback):
+starter_cnn_time.py:7:    def on_epoch_begin(self, epoch, logs=None):
+starter_cnn_time.py:8:        self.t0 = time.perf_counter()
+starter_cnn_time.py:9:    def on_epoch_end(self, epoch, logs=None):
+starter_cnn_time.py:10:        self.times.append(time.perf_counter() - self.t0)
+starter_cnn_time.py:56:    print("epoch_times_sec:", times)
+starter_cnn_time.py:64:    print("avg_time_per_epoch_sec (excluding epoch1):", avg)

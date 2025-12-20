@@ -1,0 +1,32 @@
+7:from sklearn.model_selection import train_test_split
+26:        depth = float(r["depth"])
+27:        base_filters = float(r["base_filters"])
+28:        batch_size = float(r["batch_size"])
+29:        params = float(r["params"])
+30:        steps = float(r["steps_per_epoch"])
+33:            depth,
+34:            base_filters,
+35:            math.log2(batch_size),
+36:            math.log10(params),
+37:            math.log10(steps),
+43:        y.append(math.log(t))
+50:def eval_time_metrics(y_log_true, y_log_pred):
+51:    y_true = np.exp(y_log_true)
+52:    y_pred = np.exp(y_log_pred)
+63:    rows = load_rows("runs_agg.csv")
+66:    X, y_log = build_xy(rows, "avg_time_mean")
+68:    X_train, X_temp, y_train, y_temp = train_test_split(X, y_log, test_size=0.30, random_state=42)
+71:    norm = tf.keras.layers.Normalization(axis=-1)
+74:    model = tf.keras.Sequential([
+75:        tf.keras.layers.Input(shape=(X_train.shape[1],)),
+77:        tf.keras.layers.Dense(64, activation="relu"),
+78:        tf.keras.layers.Dense(64, activation="relu"),
+79:        tf.keras.layers.Dense(1),
+82:    model.compile(optimizer=tf.keras.optimizers.Adam(1e-3), loss="mse")
+84:    es = tf.keras.callbacks.EarlyStopping(monitor="val_loss", patience=15, restore_best_weights=True)
+86:    model.fit(
+90:        batch_size=32,
+95:    pred_log = model.predict(X_test, verbose=0).reshape(-1)
+97:    mae, rmse, r2 = eval_time_metrics(y_test, pred_log)
+100:    model.save("results_v3/time_mean_ann_deploy.keras")
+101:    print("saved results_v3/time_mean_ann_deploy.keras")

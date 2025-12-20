@@ -1,0 +1,18 @@
+4:TRAIN_N = 50000
+10:        k = (int(r["depth"]), int(r["base_filters"]), int(r["batch_size"]), int(r["params"]))
+13:def stdev(v):
+15:        return statistics.stdev(v)
+34:        "batch_size": bs,
+37:        "steps_per_epoch": steps,
+38:        "avg_time_mean": statistics.mean(t),
+39:        "avg_time_std": stdev(t),
+40:        "thr_mean": statistics.mean(thr),
+41:        "thr_std": stdev(thr),
+42:        "acc_mean": statistics.mean(acc),
+43:        "acc_std": stdev(acc),
+46:rows_out.sort(key=lambda r: (r["depth"], r["base_filters"], r["batch_size"]))
+62:    rep.sort(key=lambda r: float(r["avg_time_std"]), reverse=True)
+63:    print("top repeat-noise configs (by time std):")
+67:        print(r["depth"], r["base_filters"], r["batch_size"],
+69:              "time_std=", round(float(r["avg_time_std"]), 4),
+70:              "thr_std=", round(float(r["thr_std"]), 1))

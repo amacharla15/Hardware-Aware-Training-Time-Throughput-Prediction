@@ -1,0 +1,5 @@
+DP TIME-BUDGET PLANNER (0/1 Knapsack)
+Budget: 3600 sec  (~60.00 min)
+Epochs per candidate run: 3
+Candidates available: 0
+No candidates fit the budget (or min_acc filter removed all).

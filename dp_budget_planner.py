@@ -3,22 +3,9 @@ import csv
 import math
 import os
 import sys
-from collections import defaultdict
 
 import numpy as np
 
-# Optional TF import only when we actually need to load the model.
-# This script is meant to run on cscigpu with the same venv as the project.
-def load_time_model(model_path):
-    import tensorflow as tf
-    model = tf.keras.models.load_model(model_path, compile=False)
-    return model
-
-def safe_float(x, default=0.0):
-    try:
-        return float(x)
-    except Exception:
-        return default
 
 def safe_int(x, default=0):
     try:
@@ -26,105 +13,84 @@ def safe_int(x, default=0):
     except Exception:
         return default
 
-def read_runs_csv_mean_acc_by_config(runs_csv_path):
-    """
-    Build mapping: (depth, base_filters, batch_size, params) -> mean test_acc
-    using runs.csv logs (raw).
-    """
-    acc_sum = defaultdict(float)
-    acc_cnt = defaultdict(int)
 
-    if not os.path.exists(runs_csv_path):
-        return {}
+def safe_float(x, default=0.0):
+    try:
+        return float(x)
+    except Exception:
+        return default
 
-    with open(runs_csv_path, "r", newline="") as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            d = safe_int(row.get("depth", 0))
-            bf = safe_int(row.get("base_filters", 0))
-            bs = safe_int(row.get("batch_size", 0))
-            params = safe_int(row.get("params", 0))
-            acc = safe_float(row.get("test_acc", ""))
-            if acc <= 0.0:
-                continue
-            k = (d, bf, bs, params)
-            acc_sum[k] += acc
-            acc_cnt[k] += 1
 
-    out = {}
-    for k in acc_sum:
-        out[k] = acc_sum[k] / max(1, acc_cnt[k])
-    return out
-
-def read_runs_agg_rows(runs_agg_path):
-    """
-    Read aggregated runs_agg.csv. Return list of dict rows with needed fields.
-    Expected columns include:
-      depth, base_filters, batch_size, params, steps_per_epoch, avg_time_mean (maybe)
-    """
+def read_runs_agg(runs_agg_path):
     rows = []
     with open(runs_agg_path, "r", newline="") as f:
         reader = csv.DictReader(f)
-        for row in reader:
-            rows.append(row)
+        for r in reader:
+            rows.append(r)
     return rows
 
-def build_feature_vector(d, bf, bs, params, steps_per_epoch):
-    # Matches your training features: depth, base_filters, batch_size, params, steps_per_epoch
-    x = np.zeros((1, 5), dtype=np.float32)
-    x[0, 0] = float(d)
-    x[0, 1] = float(bf)
-    x[0, 2] = float(bs)
-    x[0, 3] = float(params)
-    x[0, 4] = float(steps_per_epoch)
-    return x
 
-def predict_time_per_epoch_sec(model, d, bf, bs, params, steps_per_epoch):
-    x = build_feature_vector(d, bf, bs, params, steps_per_epoch)
-    y = model.predict(x, verbose=0)
-    # y can be shape (1,1) or (1,)
-    if isinstance(y, (list, tuple)):
-        y = np.array(y)
-    yv = float(np.ravel(y)[0])
-    # Safety clamp: time should be positive
-    if not math.isfinite(yv) or yv <= 0.0:
-        yv = 1e-6
-    return yv
+def build_X_for_model(d, bf, bs, params, steps):
+    # MUST match train_time_ann_deploy.py and predict_perf_final.py
+    # X = [depth, base_filters, log2(batch_size), log10(params), log10(steps_per_epoch)]
+    x0 = float(d)
+    x1 = float(bf)
+    x2 = math.log2(float(bs))
+    x3 = math.log10(float(params))
+    x4 = math.log10(float(steps))
+    return [x0, x1, x2, x3, x4]
+
+
+def load_time_model(model_path, cpu_only):
+    if cpu_only:
+        os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
+    import tensorflow as tf
+    model = tf.keras.models.load_model(model_path, compile=False)
+    return model
+
+
+def predict_times_batch_logspace(model, X):
+    # model predicts log(time); convert back using exp
+    pred_log = model.predict(X, verbose=0).reshape(-1)
+    pred_time = np.exp(pred_log)
+
+    # safety clamp
+    pred_time = np.where(np.isfinite(pred_time), pred_time, 1e-6)
+    pred_time = np.where(pred_time > 0.0, pred_time, 1e-6)
+    return pred_time
+
 
 def knapsack_01(items, budget_sec):
-    """
-    0/1 knapsack DP using integer seconds budget.
-    items: list of dict with fields:
-      'cost' (int seconds), 'value' (float), plus metadata
-    Returns chosen items list.
-    DP: dp[t] = best value achievable with time t
-        take[t] = index of item taken to reach dp[t] (or -1)
-        prev[t] = previous t (t - cost)
-    """
+    # 0/1 knapsack with integer-second budget
     B = int(budget_sec)
+
     dp = [-1e30] * (B + 1)
     take = [-1] * (B + 1)
     prev = [-1] * (B + 1)
+
     dp[0] = 0.0
 
     i = 0
     while i < len(items):
         c = int(items[i]["cost"])
         v = float(items[i]["value"])
+
         if c <= 0:
             i += 1
             continue
+
         t = B
         while t >= c:
-            cand = dp[t - c] + v
-            if cand > dp[t]:
-                dp[t] = cand
-                take[t] = i
-                prev[t] = t - c
+            if dp[t - c] > -1e29:
+                cand = dp[t - c] + v
+                if cand > dp[t]:
+                    dp[t] = cand
+                    take[t] = i
+                    prev[t] = t - c
             t -= 1
+
         i += 1
 
-    # Find best t
     best_t = 0
     best_v = dp[0]
     t = 1
@@ -134,10 +100,9 @@ def knapsack_01(items, budget_sec):
             best_t = t
         t += 1
 
-    # Reconstruct
     chosen = []
-    t = best_t
     used = set()
+    t = best_t
     while t >= 0 and take[t] != -1:
         i = take[t]
         if i in used:
@@ -145,245 +110,173 @@ def knapsack_01(items, budget_sec):
         used.add(i)
         chosen.append(items[i])
         t = prev[t]
-        if t < 0:
-            break
 
     return chosen, best_t, best_v
+
 
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--runs_agg", default="runs_agg.csv")
-    ap.add_argument("--runs_csv", default="runs.csv")
     ap.add_argument("--model", default="results_v3/time_mean_ann_deploy.keras")
     ap.add_argument("--budget_sec", type=int, default=3600)
-    ap.add_argument("--epochs", type=int, default=3)
+    ap.add_argument("--epochs", type=int, default=50)
+
+    ap.add_argument("--time_source", choices=["measured", "pred"], default="measured")
+    ap.add_argument("--cpu_only", action="store_true")
+
+    ap.add_argument("--value", choices=["acc", "thr"], default="acc")
     ap.add_argument("--min_acc", type=float, default=0.0)
-    ap.add_argument("--max_items", type=int, default=0, help="0 = no limit, else cap candidate items for faster DP")
+
+    ap.add_argument("--max_items", type=int, default=0, help="0=no limit; else cap by value-density")
     args = ap.parse_args()
 
     if not os.path.exists(args.runs_agg):
         print("ERROR: runs_agg.csv not found at", args.runs_agg)
         sys.exit(1)
-    if not os.path.exists(args.model):
-        print("ERROR: time model not found at", args.model)
-        sys.exit(1)
 
-    # Load mean accuracy from raw runs (if present)
-    acc_map = read_runs_csv_mean_acc_by_config(args.runs_csv)
+    rows = read_runs_agg(args.runs_agg)
 
-    # Load model
-    model = load_time_model(args.model)
+    # First pass: parse and filter basic validity + min_acc
+    parsed = []
+    seen_cfg = set()
 
-    agg_rows = read_runs_agg_rows(args.runs_agg)
+    for r in rows:
+        d = safe_int(r.get("depth", 0))
+        bf = safe_int(r.get("base_filters", 0))
+        bs = safe_int(r.get("batch_size", 0))
+        params = safe_int(r.get("params", 0))
+        steps = safe_float(r.get("steps_per_epoch", 0.0))
 
-    # Build candidate items
-    items = []
-    for row in agg_rows:
-        d = safe_int(row.get("depth", 0))
-        bf = safe_int(row.get("base_filters", 0))
-        bs = safe_int(row.get("batch_size", 0))
-        params = safe_int(row.get("params", 0))
-        steps = safe_float(row.get("steps_per_epoch", 0.0))
+        acc = safe_float(r.get("acc_mean", 0.0))
+        thr = safe_float(r.get("thr_mean", 0.0))
+        t_meas = safe_float(r.get("avg_time_mean", 0.0))
 
         if d <= 0 or bf <= 0 or bs <= 0 or params <= 0 or steps <= 0:
             continue
 
-        k = (d, bf, bs, params)
-        acc = acc_map.get(k, 0.0)
+        cfg_key = (d, bf, bs, params)
+        if cfg_key in seen_cfg:
+            continue
+        seen_cfg.add(cfg_key)
 
-        # If no acc in runs.csv, we still allow it but value will be 0.
         if acc < args.min_acc:
             continue
 
-        time_per_epoch = predict_time_per_epoch_sec(model, d, bf, bs, params, steps)
-        total_cost_sec = int(round(time_per_epoch * float(args.epochs)))
-
-        # Avoid impossible weird costs
-        if total_cost_sec <= 0:
-            continue
-        if total_cost_sec > args.budget_sec:
-            continue
-
-        item = {
+        parsed.append({
             "depth": d,
             "base_filters": bf,
             "batch_size": bs,
             "params": params,
             "steps_per_epoch": steps,
             "acc": acc,
-            "pred_time_per_epoch": time_per_epoch,
+            "thr": thr,
+            "t_measured": t_meas,
+        })
+
+    # Determine times (measured vs predicted)
+    times = None
+
+    if args.time_source == "measured":
+        times = np.array([max(1e-6, float(p["t_measured"])) for p in parsed], dtype=np.float64)
+    else:
+        if not os.path.exists(args.model):
+            print("ERROR: time model not found at", args.model)
+            sys.exit(1)
+
+        # Build X matrix once and predict once
+        X_list = []
+        for p in parsed:
+            X_list.append(build_X_for_model(
+                p["depth"], p["base_filters"], p["batch_size"], p["params"], p["steps_per_epoch"]
+            ))
+        X = np.array(X_list, dtype=np.float32)
+
+        model = load_time_model(args.model, args.cpu_only)
+        times = predict_times_batch_logspace(model, X).astype(np.float64)
+
+    # Build DP items
+    items = []
+    for i in range(len(parsed)):
+        p = parsed[i]
+        time_per_epoch = float(times[i])
+
+        cost = int(round(time_per_epoch * float(args.epochs)))
+        if cost <= 0:
+            continue
+        if cost > args.budget_sec:
+            continue
+
+        val = p["acc"] if args.value == "acc" else p["thr"]
+
+        items.append({
+            "depth": p["depth"],
+            "base_filters": p["base_filters"],
+            "batch_size": p["batch_size"],
+            "params": p["params"],
+            "steps_per_epoch": p["steps_per_epoch"],
+            "acc": p["acc"],
+            "thr": p["thr"],
+            "time_per_epoch": time_per_epoch,
             "epochs": args.epochs,
-            "cost": total_cost_sec,
-            "value": acc,  # maximize total accuracy sum
-        }
-        items.append(item)
+            "cost": cost,
+            "value": float(val),
+        })
 
-    # Optional cap to speed DP (not usually needed for B~3600)
+    # optional cap for speed (usually not needed)
     if args.max_items and args.max_items > 0 and len(items) > args.max_items:
-        # Keep top by value density (acc / cost) as heuristic prefilter
         items.sort(key=lambda it: (it["value"] / max(1, it["cost"])), reverse=True)
-        items = items[: args.max_items]
-    # Sort candidates for nicer output (does not affect DP)
-    items.sort(key=lambda it: (it["value"], -it["cost"]), reverse=True)
+        items = items[:args.max_items]
 
     print("DP TIME-BUDGET PLANNER (0/1 Knapsack)")
     print(f"Budget: {args.budget_sec} sec  (~{args.budget_sec/60.0:.2f} min)")
     print(f"Epochs per candidate run: {args.epochs}")
+    print(f"Value optimized: {args.value}")
+    print(f"Time source: {args.time_source}")
+    print(f"min_acc filter: {args.min_acc}")
     print(f"Candidates available: {len(items)}")
+
     if len(items) == 0:
-        print("No candidates fit the budget (or min_acc filter removed all).")
+        print("No candidates fit the budget (or min_acc removed all).")
         sys.exit(0)
 
     chosen, used_t, best_v = knapsack_01(items, args.budget_sec)
 
-    # Summaries
     total_cost = 0
     total_value = 0.0
     for it in chosen:
         total_cost += int(it["cost"])
         total_value += float(it["value"])
 
-    # Print chosen set
-    chosen.sort(key=lambda it: it["cost"])  # small-to-large for readability
+    chosen.sort(key=lambda it: it["cost"])
 
     print("")
     print("RESULT")
     print(f"Chosen configs: {len(chosen)}")
-    print(f"Total predicted time used: {total_cost} sec  (~{total_cost/60.0:.2f} min)")
+    print(f"Total time used: {total_cost} sec  (~{total_cost/60.0:.2f} min)")
     print(f"Budget utilization: {100.0*float(total_cost)/float(args.budget_sec):.2f}%")
-    print(f"Total value (sum of accuracies): {total_value:.6f}")
+    if args.value == "acc":
+        print(f"Total value: {total_value:.6f}")
+    else:
+        print(f"Total value: {total_value:.3f}")
+
     print("")
-    print("Chosen list (cost = predicted seconds for epochs, value = mean test_acc):")
-    print("depth  filters  batch   params      acc      pred_time/ep(s)  epochs  cost(s)")
+    print("Chosen list:")
+    print("depth  filters  batch   params      acc     thr(img/s)  time/ep(s)  epochs  cost(s)")
     for it in chosen:
-        d = it["depth"]
-        bf = it["base_filters"]
-        bs = it["batch_size"]
-        params = it["params"]
-        acc = it["acc"]
-        tpe = it["pred_time_per_epoch"]
-        ep = it["epochs"]
-        c = it["cost"]
-        print(f"{d:5d}  {bf:7d}  {bs:5d}  {params:9d}  {acc:7.4f}     {tpe:10.4f}   {ep:5d}  {c:6d}")
+        print(
+            f"{it['depth']:5d}  {it['base_filters']:7d}  {it['batch_size']:5d}  {it['params']:9d}  "
+            f"{it['acc']:7.4f}  {it['thr']:10.1f}  {it['time_per_epoch']:10.4f}  {it['epochs']:5d}  {it['cost']:6d}"
+        )
 
     print("")
     print("DP details (for report):")
-    print("- This is a 0/1 knapsack DP: each candidate configuration can be chosen at most once.")
-    print("- cost = predicted_time_per_epoch * epochs (rounded to seconds).")
-    print("- value = mean test accuracy from runs.csv (aggregated by (depth, filters, batch, params)).")
-    print("- DP state: dp[t] = best total value achievable with total time exactly <= t.")
-    print("- Transition: dp[t] = max(dp[t], dp[t-cost_i] + value_i).")
-    print(f"- Complexity: O(N * B) where N={len(items)} candidates and B={args.budget_sec} seconds budget.")
+    print("- 0/1 knapsack DP (each candidate config can be chosen at most once).")
+    print("- cost = time_per_epoch * epochs (rounded to seconds).")
+    print("- value = acc_mean or thr_mean from runs_agg.csv.")
+    print("- state: dp[t] = best total value achievable within time budget t.")
+    print("- transition: dp[t] = max(dp[t], dp[t-cost_i] + value_i).")
+    print(f"- complexity: O(N*B) with N={len(items)} and B={args.budget_sec} seconds.")
+
 
 if __name__ == "__main__":
     main()
-    # Sort candidates for nicer output (does not affect DP)
-    items.sort(key=lambda it: (it["value"], -it["cost"]), reverse=True)
-
-    print("DP TIME-BUDGET PLANNER (0/1 Knapsack)")
-    print(f"Budget: {args.budget_sec} sec  (~{args.budget_sec/60.0:.2f} min)")
-    print(f"Epochs per candidate run: {args.epochs}")
-    print(f"Candidates available: {len(items)}")
-    if len(items) == 0:
-        print("No candidates fit the budget (or min_acc filter removed all).")
-        sys.exit(0)
-
-    chosen, used_t, best_v = knapsack_01(items, args.budget_sec)
-
-    # Summaries
-    total_cost = 0
-    total_value = 0.0
-    for it in chosen:
-        total_cost += int(it["cost"])
-        total_value += float(it["value"])
-
-    # Print chosen set
-    chosen.sort(key=lambda it: it["cost"])  # small-to-large for readability
-
-    print("")
-    print("RESULT")
-    print(f"Chosen configs: {len(chosen)}")
-    print(f"Total predicted time used: {total_cost} sec  (~{total_cost/60.0:.2f} min)")
-    print(f"Budget utilization: {100.0*float(total_cost)/float(args.budget_sec):.2f}%")
-    print(f"Total value (sum of accuracies): {total_value:.6f}")
-    print("")
-    print("Chosen list (cost = predicted seconds for epochs, value = mean test_acc):")
-    print("depth  filters  batch   params      acc      pred_time/ep(s)  epochs  cost(s)")
-    for it in chosen:
-        d = it["depth"]
-        bf = it["base_filters"]
-        bs = it["batch_size"]
-        params = it["params"]
-        acc = it["acc"]
-        tpe = it["pred_time_per_epoch"]
-        ep = it["epochs"]
-        c = it["cost"]
-        print(f"{d:5d}  {bf:7d}  {bs:5d}  {params:9d}  {acc:7.4f}     {tpe:10.4f}   {ep:5d}  {c:6d}")
-
-    print("")
-    print("DP details (for report):")
-    print("- This is a 0/1 knapsack DP: each candidate configuration can be chosen at most once.")
-    print("- cost = predicted_time_per_epoch * epochs (rounded to seconds).")
-    print("- value = mean test accuracy from runs.csv (aggregated by (depth, filters, batch, params)).")
-    print("- DP state: dp[t] = best total value achievable with total time exactly <= t.")
-    print("- Transition: dp[t] = max(dp[t], dp[t-cost_i] + value_i).")
-    print(f"- Complexity: O(N * B) where N={len(items)} candidates and B={args.budget_sec} seconds budget.")
-
-if __name__ == "__main__":
-    main()
-
-    # Sort candidates for nicer output (does not affect DP)
-    items.sort(key=lambda it: (it["value"], -it["cost"]), reverse=True)
-
-    print("DP TIME-BUDGET PLANNER (0/1 Knapsack)")
-    print(f"Budget: {args.budget_sec} sec  (~{args.budget_sec/60.0:.2f} min)")
-    print(f"Epochs per candidate run: {args.epochs}")
-    print(f"Candidates available: {len(items)}")
-    if len(items) == 0:
-        print("No candidates fit the budget (or min_acc filter removed all).")
-        sys.exit(0)
-
-    chosen, used_t, best_v = knapsack_01(items, args.budget_sec)
-
-    # Summaries
-    total_cost = 0
-    total_value = 0.0
-    for it in chosen:
-        total_cost += int(it["cost"])
-        total_value += float(it["value"])
-
-    # Print chosen set
-    chosen.sort(key=lambda it: it["cost"])  # small-to-large for readability
-
-    print("")
-    print("RESULT")
-    print(f"Chosen configs: {len(chosen)}")
-    print(f"Total predicted time used: {total_cost} sec  (~{total_cost/60.0:.2f} min)")
-    print(f"Budget utilization: {100.0*float(total_cost)/float(args.budget_sec):.2f}%")
-    print(f"Total value (sum of accuracies): {total_value:.6f}")
-    print("")
-    print("Chosen list (cost = predicted seconds for epochs, value = mean test_acc):")
-    print("depth  filters  batch   params      acc      pred_time/ep(s)  epochs  cost(s)")
-    for it in chosen:
-        d = it["depth"]
-        bf = it["base_filters"]
-        bs = it["batch_size"]
-        params = it["params"]
-        acc = it["acc"]
-        tpe = it["pred_time_per_epoch"]
-        ep = it["epochs"]
-        c = it["cost"]
-        print(f"{d:5d}  {bf:7d}  {bs:5d}  {params:9d}  {acc:7.4f}     {tpe:10.4f}   {ep:5d}  {c:6d}")
-
-    print("")
-    print("DP details (for report):")
-    print("- This is a 0/1 knapsack DP: each candidate configuration can be chosen at most once.")
-    print("- cost = predicted_time_per_epoch * epochs (rounded to seconds).")
-    print("- value = mean test accuracy from runs.csv (aggregated by (depth, filters, batch, params)).")
-    print("- DP state: dp[t] = best total value achievable with total time exactly <= t.")
-    print("- Transition: dp[t] = max(dp[t], dp[t-cost_i] + value_i).")
-    print(f"- Complexity: O(N * B) where N={len(items)} candidates and B={args.budget_sec} seconds budget.")
-
-if __name__ == "__main__":
-    main()
-

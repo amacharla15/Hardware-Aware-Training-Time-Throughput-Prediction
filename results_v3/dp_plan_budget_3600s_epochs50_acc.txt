@@ -1,0 +1,25 @@
+DP TIME-BUDGET PLANNER (0/1 Knapsack)
+Budget: 3600 sec  (~60.00 min)
+Epochs per candidate run: 50
+Value optimized: acc
+Time source: measured
+min_acc filter: 0.6
+Candidates available: 67
+
+RESULT
+Chosen configs: 1
+Total time used: 46 sec  (~0.77 min)
+Budget utilization: 1.28%
+Total value: 0.606025
+
+Chosen list:
+depth  filters  batch   params      acc     thr(img/s)  time/ep(s)  epochs  cost(s)
+    3       32    512     550570   0.6060     54595.5      0.9159     50      46
+
+DP details (for report):
+- 0/1 knapsack DP (each candidate config can be chosen at most once).
+- cost = time_per_epoch * epochs (rounded to seconds).
+- value = acc_mean (or thr_mean) from runs_agg.csv.
+- state: dp[t] = best total value achievable within time budget t.
+- transition: dp[t] = max(dp[t], dp[t-cost_i] + value_i).
+- complexity: O(N*B) with N=67 and B=3600 seconds.

@@ -1,307 +1,235 @@
-# Hardware-Aware Training Time and Throughput Prediction for CNNs on A100
+# Hardware-Aware Training Time & Throughput Prediction for CNNs on NVIDIA A100 (CSCI 581)
 
-This project builds a **neural performance model** for deep learning workloads on an NVIDIA **A100** GPU.
+This project builds a **hardware-aware performance predictor** for CNN training on **CIFAR-10** running on an **NVIDIA A100 GPU**.  
+Given a CNN configuration (e.g., `depth`, `base_filters`, `batch_size`, `params`), the project predicts:
 
-Instead of predicting labels from images, the main goal is to **predict how long a training job will take** and how fast it will run:
+- **avg training time per epoch (sec/epoch)** *(main target)*
+- **throughput (images/sec)** *(best method: derived as `50,000 / predicted_time_per_epoch` for CIFAR-10 train set)*
 
-> Given a CNN architecture and training hyperparameters,  
-> **predict the time-per-epoch and images-per-second on an A100.**
-
-The base workload is CIFAR-10 image classification with CNNs; on top of that, a dense ANN regressor is trained to learn the mapping from **model configuration → training performance**.
-
----
-
-## Motivation
-
-Modern ML teams don’t just care about accuracy – they care about:
-
-- **Training time** (how long will this job run?)
-- **Throughput** (images/sec, tokens/sec)
-- **Cost and utilization** (how many GPU hours / dollars?)
-
-Today, these questions are often answered by trial-and-error: “try this config and see how slow it is.”
-
-This project is a small-scale prototype of an **empirical cost model** for CNN training on a GPU:
-
-- Use CIFAR-10 CNNs as a realistic workload.
-- Run many configurations on an A100 and **log real performance**.
-- Train a neural regressor that can **predict runtime and throughput** for new CNN configurations, before actually running them.
-
-This kind of approach is relevant to:
-
-- Job-time and cost estimation on GPUs / accelerators (A100, H100, Trainium, Inferentia, etc.)
-- Hyperparameter tuning under a **time budget**
-- Cluster scheduling and capacity planning
-- Comparing hardware (e.g., A100 vs other accelerators) with minimal extra runs
+The core idea: collect real training runs on A100 → build a supervised regression dataset → train a regressor to predict time/epoch → derive throughput from time.
 
 ---
 
-## High-Level Overview
+## Results (Final)
 
-The project has two ML components:
+**Dataset (aggregated):**
+- `runs_agg.csv`: **143 unique CNN configs** (aggregated from raw runs)
 
-1. **Base model: CNNs on CIFAR-10**
-   - Standard supervised image classification.
-   - Vary:
-     - `depth` (number of convolutional blocks)
-     - `base_filters` (width)
-     - `batch_size`
-   - Train on an **A100** GPU.
-   - Log:
-     - `time_per_epoch` (seconds)
-     - `images_per_second`
-     - `num_params` (model size)
-     - (optionally) `max_gpu_mem_mb` from `nvidia-smi`.
+**Best time predictor (ANN, trained in log-space):**
+- **MAE = 0.1014 sec/epoch**
+- **RMSE = 0.1614 sec/epoch**
+- **R² = 0.9938**
 
-2. **Performance model: dense ANN regressor**
-   - Input features (numeric):
-     - `depth`
-     - `base_filters`
-     - `batch_size`
-     - `num_params`
-     - (optionally) dataset size, epochs, etc.
-   - Targets:
-     - `time_per_epoch`
-     - (optionally) `images_per_second`
-   - Trained as a regression model with MSE/MAE loss.
-   - Evaluated with:
-     - MAE / RMSE
-     - R²
-     - **Predicted vs actual** scatter plots.
+**Throughput strategy (derived from predicted time):**
+- Throughput = `TRAIN_N / predicted_time`, where `TRAIN_N = 50,000`
+- Derived throughput from ANN(time):  
+  - **MAE = 2456.6 images/sec**
+  - **RMSE = 3758.8 images/sec**
+  - **R² = 0.9729**
 
-The result is a model that can answer questions like:
-
-> “If I train a 4-block CNN with 64 filters and batch size 128 on CIFAR-10,  
->  how long will each epoch take on an A100?”
+**Generalization test (unseen configs):**
+- 5 unseen configs in `logs_unseen/`
+- Relative time errors: **~1.22% to 6.55%**
+- Relative throughput errors: **~1.24% to 7.01%**
+- Summary:
+  - **Time MAE = 0.1039 sec/epoch**
+  - **Throughput MAE = 1534.43 images/sec**
 
 ---
 
-## Repository Structure
+## Repository Layout (What Each File/Folder Is For)
+
+### Phase 1 — Workload definition (CIFAR-10 CNN + timing)
+- `starter_cnn_time.py`  
+  Minimal baseline script: CIFAR-10 + simple CNN + epoch timing callback → prints `avg_time_per_epoch` and `images/sec`.
+- `run_one.py`  
+  Main configurable workload runner used for dataset collection (parameterized CNN by `depth`, `base_filters`, `batch_size`), logs results to CSV and writes a per-run log file.
+
+### Phase 2 — Data collection (raw measurements)
+- `runs.csv`  
+  Raw dataset: **one row per run**.
+- `logs/`, `logs_grid2/`, `logs_grid3/`, `logs_repeats/`, `logs_unseen/`  
+  Full stdout logs for runs. Each contains a `LOGGED:` dictionary mirroring CSV fields.
+
+### Phase 3 — Aggregation + feature engineering
+- `make_runs_agg.py`  
+  Groups repeated configs → computes mean/std → adds `steps_per_epoch`.
+- `runs_agg.csv`  
+  Final supervised-learning table (unique configs).
+
+### Phase 4 — Visualization
+- `make_plots_v2.py`  
+  Generates plots from `runs_agg.csv`.
+- `results_v2/`  
+  Saved plot images (e.g., `acc_vs_time.png`, `throughput_vs_batch.png`, `repeats_time_errorbars.png`).
+
+### Phase 5 — Time regressor training (ANN in log-space)
+- `train_time_ann_deploy.py`  
+  Trains ANN to predict **log(time/epoch)**; exponentiates during evaluation; saves deployable model.
+- `results_v3/time_mean_ann_deploy.keras`  
+  Saved deployable ANN model.
+
+### Phase 6 — Throughput prediction strategy
+- `train_time_derive_thr.py`  
+  Evaluates derived throughput using `thr = 50,000 / predicted_time`, compares Linear(time) vs ANN(time).
+- `results_v3/thr_derived_from_time_ann.png`  
+- `results_v3/thr_derived_from_time_linear.png`  
+- `results_v3/derived_thr_report_latest.txt` *(if present)*
+
+### Phase 7 — Generalization test (unseen configs)
+- `eval_unseen.py`  
+  Loads unseen configs from `logs_unseen/`, compares measured vs predicted time & throughput, prints MAE/errors.
+
+### Phase 8 — Time-budget planner (Dynamic Programming / 0/1 Knapsack)
+- `dp_budget_planner.py`  
+  Selects the best set of candidate CNN runs under a time budget.
+  - cost = `round(time_per_epoch * epochs)`
+  - value = `acc_mean` or `thr_mean`
+  - DP state: `dp[t] = best value within budget t`
+- `results_v3/dp_plan_*.txt` *(generated outputs)*
 
+### Phase 9 — Deployment (final inference interface)
+- `predict_perf_final.py`  
+  Loads saved ANN model → predicts time/epoch for a new config → derives throughput.
 
-```text
-.
-├─ notebooks/
-│  ├─ 01_cifar10_cnn_baseline.ipynb       # Single CNN training on CIFAR-10 (sanity check)
-│  ├─ 02_collect_cnn_perf_on_a100.ipynb   # Run config grid and log performance
-│  └─ 03_train_performance_regressor.ipynb# Train/evaluate ANN regressor
-├─ src/
-│  ├─ models_cnn.py                       # CNN architecture factory
-│  ├─ collect_metrics.py                  # Helpers for timing & logging
-│  └─ perf_regressor.py                   # ANN regressor definition & training loop
-├─ data/
-│  ├─ configs_cifar_cnn_a100.csv          # Collected config ↔ performance dataset
-│  └─ (optional) small_sample.csv         # Tiny sample for CPU-only demo
-├─ plots/
-│  ├─ accuracy_curves.png
-│  ├─ batchsize_vs_images_per_sec.png
-│  └─ predicted_vs_actual_time.png
-├─ requirements.txt
-└─ README.md
-Dataset
-Base dataset:
+---
 
-CIFAR-10 via tf.keras.datasets.cifar10
+## Data Schema
 
-50,000 training images, 10 classes, 32×32 RGB
+### `runs.csv` (raw, per run)
+Columns:
+- `timestamp_utc`, `tf_version`
+- `depth`, `base_filters`, `batch_size`, `epochs`
+- `params`
+- `epoch_times_json`
+- `avg_time_sec`
+- `images_per_sec`
+- `test_acc`
 
-Performance dataset (generated):
+### `runs_agg.csv` (aggregated, per unique config)
+Columns (typical):
+- `depth`, `base_filters`, `batch_size`, `params`, `n`
+- `steps_per_epoch`
+- `avg_time_mean`, `avg_time_std`
+- `thr_mean`, `thr_std`
+- `acc_mean`, `acc_std`
 
-Each row in configs_cifar_cnn_a100.csv corresponds to one training job run on the A100, with columns such as:
+---
 
-depth – number of conv blocks
+## How the Model Works (Feature Engineering)
 
-base_filters – filters in the first block
+For each configuration, the time regressor uses:
 
-batch_size
+- `depth`
+- `base_filters`
+- `log2(batch_size)`
+- `log10(params)`
+- `log10(steps_per_epoch)`
 
-num_params
+Where:
+- `steps_per_epoch = ceil(50,000 / batch_size)` (CIFAR-10 fixed train set)
 
-dataset_size
+**Why log-space for the target?**
+- Time is positive and spans orders of magnitude.
+- Training in log-space prevents invalid negative time predictions.
+- Prediction pipeline:
+  - model outputs `log(time)`
+  - final `time = exp(pred_log_time)`
 
-epochs
+---
 
-time_per_epoch
+## Phase-Based Pipeline (End-to-End)
 
-images_per_second
+### Phase 1 — Define the workload
+Goal: a repeatable timing workload generator on CIFAR-10.
 
-(optional) max_gpu_mem_mb
+### Phase 2 — Collect raw runs on A100
+Goal: build `runs.csv` and logs folders as ground truth.
 
-This CSV is the training data for the performance regressor.
+### Phase 3 — Aggregate + derive features
+Goal: reduce noise + produce `runs_agg.csv` (mean/std + `steps_per_epoch`).
 
-Methods
-1. CNN Architecture Family
-A simple, scalable CNN template:
+### Phase 4 — Visualize patterns
+Goal: show relationships like accuracy vs time, throughput vs batch, timing noise via repeats.
 
-Repeatable conv “blocks”:
+### Phase 5 — Train time/epoch predictor
+Goal: supervised ANN model predicting time/epoch from config features (saved model).
 
-Conv2D(filters, 3×3) → ReLU → Conv2D(filters, 3×3) → ReLU → MaxPool(2×2)
+### Phase 6 — Derive throughput from predicted time
+Goal: stable throughput prediction using physics/definition: `50,000 / time_per_epoch`.
 
-Final layers:
+### Phase 7 — Unseen generalization test
+Goal: validate model on configs not used in the main training grid.
 
-Flatten → Dense(128) → ReLU → Dense(10, softmax)
+### Phase 8 — Dynamic programming planner
+Goal: select configs to run under limited time budgets (0/1 knapsack DP).
 
-Hyperparameters varied:
+### Phase 9 — Deployment interface
+Goal: simple script to predict performance for new configs.
 
-depth ∈ {2, 3, 4} (number of conv blocks)
+---
 
-base_filters ∈ {32, 64}
+## Commands (Quick, Minimal)
 
-batch_size ∈ {32, 64, 128}
+> Note: Full training/data collection was done on the A100 environment.  
+> The commands below show the intended pipeline.
 
-This yields a grid of configurations (e.g., 18 configs) to probe training performance.
+### 1) Aggregate raw runs → `runs_agg.csv`
 
-2. Performance Logging on A100
-For each configuration:
+python3 make_runs_agg.py
+2) Generate plots → results_v2/
+python3 make_plots_v2.py
 
-Build the CNN with given depth and base_filters.
+3) Train & save time model → results_v3/time_mean_ann_deploy.keras
+python3 train_time_ann_deploy.py
 
-Count parameters via model.count_params().
+4) Evaluate derived throughput strategy
+python3 train_time_derive_thr.py
 
-Train on CIFAR-10 for a small fixed number of epochs (e.g., 3).
+5) Evaluate unseen configs
+python3 eval_unseen.py
 
-Measure:
+6) DP planner example (budgeted selection)
+python3 dp_budget_planner.py --budget_sec 3600 --epochs 50 --min_acc 0.60 --value acc --time_source measured
 
-Wall-clock time per epoch (averaged)
+7) Predict performance for a new config
+python3 predict_perf_final.py --depth 3 --base_filters 32 --batch_size 512 --params 550570
 
-Images per second = dataset_size / time_per_epoch
+Environment / Dependencies
 
-Optionally GPU memory from nvidia-smi.
+Typical stack used:
 
-Append a row to the CSV with config + metrics.
+Python 3.x
 
-3. Performance Regressor
-Features (X):
+TensorFlow/Keras (used during training + inference)
 
-depth
+NumPy
 
-base_filters
+scikit-learn
 
-batch_size
+matplotlib
 
-num_params
+Hardware used for data collection:
 
-(optional) dataset_size, epochs
+NVIDIA A100 GPU (CSU Chico cscigpu)
 
-Targets (y):
+Notes / Design Choices
 
-time_per_epoch (primary)
+Why CIFAR-10? Fixed training size (50,000) makes throughput derivation consistent and comparable.
 
-(optional) images_per_second
+Why exclude epoch 1 for timing? First epoch is often slower due to warmup/autotune/caching effects.
 
-Model:
+Why aggregate repeats? Timing noise exists even for identical configs; mean/std produces stable targets.
 
-Small dense ANN (e.g., 2–3 hidden layers with ReLU)
+Ethics & Responsible Use
 
-Loss: MSE / MAE
+This model predicts training performance for CNN configurations on a specific hardware/software setup (A100 + TF stack).
+Predictions may not transfer to different GPUs, drivers, mixed precision settings, or dataloader pipelines without new measurements.
 
-Optimizer: Adam
+Acknowledgments / References
 
-Train/validation/test split on rows of configs_cifar_cnn_a100.csv.
+CIFAR-10 dataset (TensorFlow tf.keras.datasets.cifar10)
 
-Evaluation:
+TensorFlow/Keras for training and model deployment
 
-MAE, RMSE
-
-R² on test set
-
-Scatter plot: predicted vs actual time_per_epoch
-
-How to Run
-⚠️ Full experiments require access to an A100-like GPU 
-A tiny CPU-only demo can be run by restricting configs and epochs.
-
-1. Install dependencies
-bash
-Copy code
-pip install -r requirements.txt
-2. Run a single baseline CNN on CIFAR-10
-bash
-Copy code
-# Inside notebooks/ or via Jupyter
-# Open and run:
-notebooks/01_cifar10_cnn_baseline.ipynb
-This verifies TF/Keras + GPU are working and shows basic accuracy/loss curves.
-
-3. Collect performance data on A100
-bash
-Copy code
-# Open and run:
-notebooks/02_collect_cnn_perf_on_a100.ipynb
-This will:
-
-Loop over the chosen hyperparameter grid,
-
-Train each CNN for a few epochs,
-
-Log config + time_per_epoch + images_per_second to data/configs_cifar_cnn_a100.csv.
-
-4. Train the performance regressor
-bash
-Copy code
-# Open and run:
-notebooks/03_train_performance_regressor.ipynb
-This will:
-
-Load configs_cifar_cnn_a100.csv
-
-Split into train/val/test
-
-Train the ANN regressor
-
-Print metrics and generate a predicted-vs-actual plot
-
-Example Usage: What-If Prediction
-Once the regressor is trained, you can query it with a hypothetical config:
-
-python
-Copy code
-from src.perf_regressor import load_trained_model, predict_time
-
-model = load_trained_model("checkpoints/perf_regressor.h5")
-
-config = {
-    "depth": 3,
-    "base_filters": 64,
-    "batch_size": 128,
-    "num_params": 1_200_000,
-}
-
-pred_time = predict_time(model, config)
-print(f"Predicted time per epoch on A100: {pred_time:.3f} s")
-This enables “what-if” analysis:
-
-Choose configs under a time budget (e.g., < 1.5 s/epoch)
-
-Compare expected throughput across multiple candidate architectures
-
-Results
-
-Grid size: ~18 CNN configurations
-
-Dataset: CIFAR-10 (50k training images, or a fixed subset)
-
-Hardware: NVIDIA A100 (cscigpu), TensorFlow/Keras
-
-Performance regressor:
-
-R²: ~0.90 on held-out configs
-
-MAE: ~0.05 s/epoch
-
-Predicted-vs-actual scatter plot shows points clustered near the diagonal, indicating the model captures most of the variance in training time across configurations.
-
-Real-World Use Cases
-This small project is a prototype for:
-
-Job-time & cost estimation
-Estimate how long a training job will take on a given GPU before launching it.
-
-Hyperparameter tuning under a time budget
-Use the performance model as a filter: only try configs that fit within a specified epoch or wall-clock budget.
-
-Cluster scheduling & planning
-Extend the idea to many users/jobs so a scheduler can better predict queue times and choose where to place jobs.
-
-Cross-hardware comparison (future work)
-Repeat the same measurement procedure on other accelerators (e.g., AWS Trainium, Inferentia) and train separate or unified performance models to understand when each device is preferable.
+```bash

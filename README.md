@@ -1,5 +1,8 @@
 # Hardware-Aware Training Time & Throughput Prediction for CNNs on NVIDIA A100
 
+<img width="1024" height="559" alt="image" src="https://github.com/user-attachments/assets/b72598df-0359-4f69-959f-77154e307b33" />
+
+
 This project builds a **hardware-aware performance predictor** for CNN training on **CIFAR-10** running on an **NVIDIA A100 GPU**.  
 Given a CNN configuration (e.g., `depth`, `base_filters`, `batch_size`, `params`), the project predicts:
 
